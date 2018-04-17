@@ -1,0 +1,195 @@
+# Program to verify ISBN numbers and displays sum and validity WITH FUNCTIONS
+# Sonia Xu
+# TCSS 142 Winter
+# 3/1/18
+# Project 2
+
+# Prompt user for file
+# Pre – User file entered must be in the same folder as program file
+# Post – Opens up the file user entered 
+def getFile():
+    file = input("Enter the name of the file with isbns: ")
+    fileOpen = open(file,"r")
+    return fileOpen
+
+# Open the output file for writing
+# Write to output file called isbnresults.csv
+# Pre – None
+# Post – Creates a file named isbnresults.csv to write to
+def openWriteFile():
+    outputFile = open("isbnresults.csv","w")
+    return outputFile
+
+# Verify length of ISBN number is equal to 13
+# Pre – ISBN number must be passed into function 
+# Post – Function will return True if line is not equal to 13,
+# returns False if equal to 13 
+def verifyLength(line):
+    if len(line) != 13: 
+        valid = True
+    else:
+        valid = False
+    return valid 
+
+# Verify ISBN country code number is only between 0-9
+# and first character is a digit
+# Pre – ISBN number must be passed into function 
+# Post – Function will return True if first character is not a digit
+# or if the second character is not a hypen, otherwise returns False
+def countryCodeValidity(line):
+    if not line[0].isdigit() or line[1] != "-":
+        valid = True
+    else:
+        valid = False
+    return valid
+
+# Verify last character of ISBN number is a single character 
+# Pre – ISBN number must be passed into function 
+# Post – Function will return True if the second to last character in the line
+# is not a hyphen, returns False otherwise
+def lastCharacterCanOnlyBeSingle(line):
+    if line[-2] != "-":
+        valid = True
+    else:
+        valid = False
+    return valid
+
+# Verify last character can only be a "x" or a digit
+# Pre – ISBN number must be passed into function 
+# Post – Function returns True if the last character of the line is not
+# an "x" or if it's not a digit returns False otherwise
+def lastCharacterValidity(line):
+    # Last character can only be a "x" or a digit
+    if line[-1] != "x" and not line[-1].isdigit():
+        valid = True
+    else:
+        valid = False
+    return valid
+
+# Verify the ISBN number length and validate the first 9 characters are digits
+# Pre – ISBN number must be passed into function and digitValidation variable
+# which contains the first 9 characters of the ISBN number
+# Post – Function returns True if the line is not equal to 10 characters
+# or if the digitValidation variable aren't all digits, otherwise returns False
+def ISBNlength(line,digitValidation):
+    if len(line) != 10 or not digitValidation.isdigit():
+        valid = True
+    else:
+        valid = False
+    return valid
+    
+# Calculate the sum of the ISBN number
+# Pre – ISBN number must be passed into function 
+# Post – Function returns the sum of the ISBN code 
+def sumISBNdigit(line):
+    totalSum = 0
+    if line[-1] != "x":
+        for i in range(1,11):
+            line = int(line)
+            digit = line % 10
+            digitSum = i * digit
+            totalSum += digitSum
+            line //= 10
+        # if code does end in x 
+    else:
+        lineShort = line[:9]
+        totalSum = 10
+        for i in range(2,11):
+            if lineShort != 0:
+                lineShort = int(lineShort)
+                digit = lineShort % 10
+                digitSum = i * digit
+                totalSum += digitSum
+                lineShort //= 10
+    return totalSum
+
+# Verify if the total sum of the ISBN number is a multiple of 11
+# Pre – Sum of the ISBN number must be passed into function 
+# Post – Function returns False if the sum is not a multiple of 11,
+# otherwise returns True
+def sumMultiple(totalSum):
+    multiple = totalSum % 11
+    if multiple != 0:
+        valid = False
+    else:
+        valid = True
+    return valid
+
+# Write to output file
+# Pre – Output file and string must be passed into function
+# Post – Function prints the passed string and writes the
+# string to the output file
+def printToOutputFile(outputFile,string):
+    print(string)
+    outputFile.write(string)
+    outputFile.write("\n")
+
+# Write invalid string to output file
+# Pre – Output file must be passed into function
+# Post – Function prints the invalidString and writes
+# the invalidString to the output file
+def printInvalidStringOutput(outputFile):
+    invalidString = "Sum is 0"
+    print(invalidString)
+    outputFile.write(invalidString)
+    outputFile.write("\n")
+
+# Write the validity of the ISBN number to the output file
+# Pre – Must pass a variable that is either True or False,
+# the original ISBN number, and the output file
+# Post – Function will return a version of stringOutput,
+# depending on if the passed variable valid is True or False
+def printISBNValidity(valid,lineOriginal,writeFile):
+    if valid:
+        stringOutput = "The ISBN: " + lineOriginal + " is valid"
+    else:
+        stringOutput = "The ISBN: " + lineOriginal + " is invalid"
+    return stringOutput
+
+def main():
+    # Prompts user to enter file
+    userFile = getFile()
+    
+    # Open the output file for writing
+    # Write to output file called isbnresults.csv
+    writeFile = openWriteFile()
+    
+    # Iterate through each ISBN to verify validity
+    for line in userFile:
+        if line.isspace():
+            # If blank line, skip over
+            print("",end="")
+        # Otherwise save copy of ISBN, remove new line character
+        else:
+            # Create variable to store original ISBN number
+            lineOriginal = line.strip()
+            line = line.lower().strip()
+            if verifyLength(line) or countryCodeValidity(line) or lastCharacterCanOnlyBeSingle(line):
+                printInvalidStringOutput(writeFile)
+                valid = False
+            else:
+                if lastCharacterValidity(line):
+                    printInvalidStringOutput(writeFile)
+                    valid = False
+                else:
+                    # Remove hypens before summing digits
+                    line = line.replace("-","")
+                    digitValidation = line[:9]
+                    if ISBNlength(line,digitValidation):
+                        printInvalidStringOutput(writeFile)
+                        valid = False
+                    else:
+                        totalSum = sumISBNdigit(line)
+                        sumOutput = "Sum is " + str(totalSum)
+                        printToOutputFile(writeFile,sumOutput)
+                    # Verify sum is multiple of 11
+                    valid = sumMultiple(totalSum)
+            stringOutput = printISBNValidity(valid,lineOriginal,writeFile)
+            printToOutputFile(writeFile,stringOutput)
+
+
+    #Close read and output file
+    userFile.close()
+    writeFile.close()
+
+main()
