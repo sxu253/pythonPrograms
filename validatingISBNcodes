@@ -1,0 +1,110 @@
+# Program to verify ISBN numbers and displays sum and validity
+# Sonia Xu
+# TCSS 142 Winter
+# 2/6/18
+# Project 1
+# Example ISBN: 0-13-030657-6
+
+# Prompt user to choose which ISBN file to open for reading
+file = input("Enter the name of the file with isbns: ")
+fileOpen = open(file,"r")
+
+# Open the output file for writing
+# Write to output file called isbnresults.csv
+outputFile = open("isbnresults.csv","w")
+
+# Create a variable for valid or invalid, change it to false
+# if we find anything wrong
+valid = True
+
+for line in fileOpen:
+    # If blank lines, skip over 
+    if line.isspace():
+        print("",end="") 
+    else:
+        lineOriginal = line.strip()
+        line = line.lower().strip()
+        invalidString = "Sum is 0"
+        # Verify length is equal to 13
+        # First character is a digit
+        # Country code is only between 0-9
+        if len(line) != 13 or not line[0].isdigit() or line[1]!="-":
+            outputFile.write(invalidString)
+            print(invalidString)
+            outputFile.write("\n")
+            valid = False
+        else:
+            # Last character can only be a "x" or a digit
+            if line[-1] != "x" and not line[-1].isdigit():
+                outputFile.write(invalidString)
+                print(invalidString)
+                outputFile.write("\n")
+                valid = False
+            else:
+                # Remove hypens before sum digit
+                line = line.replace("-","")
+                digitValidation = line[:9]
+                # Verify there are enough digits
+                # Verify characters besides the last one are digits
+                if len(line) != 10 or not digitValidation.isdigit():
+                    outputFile.write(invalidString)
+                    print(invalidString)
+                    outputFile.write("\n")
+                    valid = False
+                else:
+                    # Sum digit
+                    totalSum = 0
+                    # if code doesn't end in x
+                    if line[-1] != "x":
+                        for i in range(1,11):
+                            if line != 0:
+                                line = int(line)
+                                digit = line % 10
+                                digitSum = i * digit
+                                totalSum += digitSum
+                                line //= 10
+                                sumOutput = "Sum is " + str(totalSum)
+                        outputFile.write(sumOutput)
+                        print(sumOutput)
+                        outputFile.write("\n")
+                        # print(totalSum)
+                    # if code does end in x 
+                    else:
+                        lineShort = line[:9]
+                        totalSum = 10
+                        for i in range(2,11):
+                            if lineShort != 0:
+                                lineShort = int(lineShort)
+                                digit = lineShort % 10
+                                digitSum = i * digit
+                                totalSum += digitSum
+                                lineShort //= 10
+                                sumOutput = "Sum is " + str(totalSum)
+                        outputFile.write(sumOutput)
+                        print(sumOutput)
+                        outputFile.write("\n")
+                    # Verify sum is multiple of 11
+                    multiple = totalSum % 11
+                    if multiple != 0:
+                        valid = False
+                    else:
+                        valid = True
+                    # print(multiple)
+
+        # Write the ISBN, sum, and validity
+        # Format:
+        # Sum is 110
+        # The ISBN: 0-13-030657-6 is valid
+        # valid or invalid
+        if valid:
+            stringOutput = "The ISBN: " + lineOriginal + " is valid"
+        else:
+            stringOutput = "The ISBN: " + lineOriginal + " is invalid"
+
+        outputFile.write(stringOutput)
+        print(stringOutput)
+        outputFile.write("\n")
+
+# Close files: read and output file
+outputFile.close()
+fileOpen.close()
