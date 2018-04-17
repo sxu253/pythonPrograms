@@ -1,0 +1,17 @@
+#program requests three scores as input and displays 
+#average of the two highest scores 
+
+a = int(input("Enter first score: "))
+b = int(input("Enter second score: "))
+c = int(input("Enter third score: "))
+
+if a > b:
+    if b > c:
+        print("Average of two highest scores is",(a+b)/2)
+    else:
+        print("Average of two highest scores is",(a+c)/2)
+else:
+    if a > c:
+        print("Average of two highest scores is",(a+b)/2)
+    else:
+        print("Average of two highest scores is",(b+c)/2)
